@@ -1,0 +1,52 @@
+<!-- livraria_cliente/index.html -->
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <title>App Livraria (Cliente)</title>
+    <style>
+        body { font-family: Arial, sans-serif; padding: 20px; background-color: #f4f4f9;}
+        .card { background: white; padding: 15px; margin-bottom: 10px; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
+        button { background-color: #28a745; color: white; border: none; padding: 10px 15px; border-radius: 5px; cursor: pointer; }
+    </style>
+</head>
+<body>
+    <h1>📚 Livraria Digital - Interface do Cliente</h1>
+    <div id="catalogo"></div>
+
+    <script>
+        const URL_SERVIDOR = "http://127.0.0.1:8000";
+
+        // O Cliente busca os dados do Servidor
+        async function carregarCatalogo() {
+            const resposta = await fetch(`${URL_SERVIDOR}/catalogo`);
+            const livros = await resposta.json();
+
+            const divCatalogo = document.getElementById("catalogo");
+            divCatalogo.innerHTML = ""; // Limpa a tela
+
+            livros.forEach(livro => {
+                divCatalogo.innerHTML += `
+                    <div class="card">
+                        <h3>${livro.titulo}</h3>
+                        <p>Preço: R$ ${livro.preco.toFixed(2)} | Estoque: ${livro.estoque}</p>
+                        <button onclick="comprarLivro(${livro.id})">Comprar PIX</button>
+                    </div>
+                `;
+            });
+        }
+
+        // O Cliente envia a ação para o Servidor
+        async function comprarLivro(id_livro) {
+            const resposta = await fetch(`${URL_SERVIDOR}/checkout/${id_livro}`, { method: "POST" });
+            const dados = await resposta.json();
+
+            alert(dados.mensagem); // Mostra a resposta do servidor
+            carregarCatalogo();    // Atualiza a tela
+        }
+
+        // Carrega o catálogo assim que a página abrir
+        carregarCatalogo();
+    </script>
+</body>
+</html>
