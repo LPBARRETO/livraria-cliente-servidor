@@ -1,11 +1,22 @@
 import os
+import sys
 import uvicorn
 
 if __name__ == "__main__":
     print("Iniciando o servidor da Livraria...")
 
-    # 1. O Python entra na pasta do servidor automaticamente por baixo dos panos
-    os.chdir("livraria_servidor")
+    # 1. Descobre o caminho exato e absoluto da pasta do servidor
+    caminho_servidor = os.path.abspath("livraria_servidor")
 
-    # 2. Ele roda o uvicorn direto pelo código, sem precisar do terminal
-    uvicorn.run("presentation.main:app", host="127.0.0.1", port=8000, reload=True)
+    # 2. Força o Python a colocar essa pasta na lista prioritária de leitura
+    sys.path.insert(0, caminho_servidor)
+    os.chdir(caminho_servidor)
+
+    # 3. Usa o host 0.0.0.0 para garantir que o Azure consiga expor o site para a internet
+    uvicorn.run(
+        "presentation.main:app",
+        host="0.0.0.0",
+        port=8000,
+        reload=True,
+        reload_dirs=[caminho_servidor]  # Ajuda o clone do Uvicorn a não se perder
+    )
